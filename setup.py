@@ -7,14 +7,14 @@ from distutils.core import Extension
 try:
     from Cython.Build import cythonize
     core_src=['fermi/src/intcore.pyx',]
-    core_c_ext=Extension('fermi/src/intcore',sources=core_src)
+    core_c_ext=Extension('fermi/src/intcore',sources=core_src,extra_link_args=['-fopenmp',],extra_compile_args=['-fopenmp',])
     ext_modules=cythonize(core_c_ext)
 except:
     ext_modules=[]
 
 setup(
             name='fermi',
-            version='0.3',
+            version='0.4',
             url='https://github.com/iogiul/FERMI',
             author='Giuliano Iorio',
             author_email='giuliano.iorio@unibo.it',

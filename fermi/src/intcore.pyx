@@ -1,6 +1,40 @@
 from __future__ import division, print_function
+from cython import boundscheck,wraparound,cdivision
+from cython.parallel cimport prange
 import numpy as np
 
+
+cdef extern from "math.h" nogil:
+    double exp "exp" (double)
+
+@boundscheck(False)
+@wraparound(False)
+cdef double _cintegrate(double[::1] w, double[::1] fx, int nlen) nogil:
+
+    cdef:
+        double sum=0.
+        int i
+
+    for i in prange(nlen,nogil=True,schedule='static'):
+        sum+=w[i]*fx[i]
+
+    return sum
+
+cdef double f(double x) nogil:
+    return x*exp(-x/5.)
+
+@boundscheck(False)
+@wraparound(False)
+cdef double _cintegrate2(double (*f)(double x) nogil,double[::1] w, double[::1] x, int nlen) nogil:
+
+    cdef:
+        double sum=0.
+        int i
+
+    for i in prange(nlen,nogil=True,schedule='static'):
+        sum+=w[i]*f(x[i])
+
+    return sum
 
 
 class Tsintegrator(object):
@@ -99,14 +133,21 @@ class Tsintegrator1D(Tsintegrator):
         """
         return self._generateGen(self.N,self.hstep)
 
-    def integrate(self,func,a=-1,b=1,extra_args=()):
+    def integrate(self,func,a=-1,b=1,extra_args=(),use_c=False):
 
         x,w=self._generateAB(self.xp,self.wp,a,b)
 
+        if use_c:
+            #fx=func(x,*extra_args)
+            nl=len(w)
+            #res=_cintegrate(w,fx,nl)
+            res=_cintegrate2(f,w,x,nl)
+
+
         #if (x[-1]==b) or (x[0]==a):
             #print('Warning one ox the extreme integration points is equal to the integral extrema')
-
-        res=np.sum(w*func(x,*extra_args))
+        else:
+            res=np.sum(w*func(x,*extra_args))
 
         return res
 
