@@ -99,14 +99,14 @@ class Tsintegrator1D(Tsintegrator):
         """
         return self._generateGen(self.N,self.hstep)
 
-    def integrate(self,func,a=-1,b=1):
+    def integrate(self,func,a=-1,b=1,extra_args=()):
 
         x,w=self._generateAB(self.xp,self.wp,a,b)
 
-        if (x[-1]==b) or (x[0]==a):
-            print('Warning one ox the extreme integration points is equal to the integral extrema')
+        #if (x[-1]==b) or (x[0]==a):
+            #print('Warning one ox the extreme integration points is equal to the integral extrema')
 
-        res=np.sum(w*func(x))
+        res=np.sum(w*func(x,*extra_args))
 
         return res
 
@@ -157,18 +157,18 @@ class Tsintegrator2D(Tsintegrator):
 
         return x,wx,y,wy
 
-    def integrate(self,func,xlim=(-1,1),ylim=(-1,1)):
+    def integrate(self,func,xlim=(-1,1),ylim=(-1,1),extra_args=()):
 
         x,wx=self._generateAB(self.xp,self.wpx,xlim[0],xlim[1])
         y,wy=self._generateAB(self.yp,self.wpy,ylim[0],ylim[1])
 
-        if (x[-1]==xlim[-1]) or (x[0]==xlim[0]) or (y[0]==ylim[0]) or (y[-1]==ylim[-1]):
-            print('Warning one ox the extreme integration points is equal to the integral extrema')
+        #if (x[-1]==xlim[-1]) or (x[0]==xlim[0]) or (y[0]==ylim[0]) or (y[-1]==ylim[-1]):
+            #print('Warning one ox the extreme integration points is equal to the integral extrema')
 
         xx,yy=np.meshgrid(x,y)
         wwx,wwy=np.meshgrid(wx,wy)
 
-        res=np.sum(wwx*wwy*func(xx,yy))
+        res=np.sum(wwx*wwy*func(xx,yy,*extra_args))
 
         return res
 
