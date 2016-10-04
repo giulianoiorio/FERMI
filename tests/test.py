@@ -13,10 +13,10 @@ def cvar(rs):
 #@cvar(1)
 def f(x): return (1./(1-x*x))*np.exp(-x/5)
 
-i=Tsintegrator1D(30,hstep=3.17)
+i=Tsintegrator1D(50,hstep=3.17)
 
 
 
 t1=time.time()
-print(i.integrate(f,3,10.))
+print(i.integrate(f,3,10.,use_c=False))
 print(time.time()-t1)

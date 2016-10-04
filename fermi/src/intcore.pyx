@@ -213,4 +213,71 @@ class Tsintegrator2D(Tsintegrator):
 
         return res
 
+class Tsintegrator3D(Tsintegrator):
+    def __init__(self,N=20,hstep=3.15):
+        """
+        :param N:  Precision number, the number of functional evaluation is equal to
+                   Nf=2N+1. It can be a single number of a list with Nx and Ny.
+        :param hstep: Step for the integration.
+        NB, Caveat: The routines will calculate positions using the value of hstep. It can be possible
+        that float has not enough precision to properly store the final values and the extreme points can be equal
+        to the integration extrema. This can be a problem if you are integrating function with some problems at the
+        extrema. To overcome this problem we can pass perform the integration between -1 and 1 and/or lower the hstep.
+        :return:
+        """
+        if isinstance(N,int) or isinstance(N,float):
+            super(Tsintegrator3D, self).__init__(N,hstep)
+            self.xp,self.wpx=self._generate1D()
+            self.yp=self.xp
+            self.wpy=self.wpx
+            self.zp=self.xp
+            self.wpz=self.wpx
+            self.check1d=True
+        elif len(N)==1:
+            super(Tsintegrator3D, self).__init__(N,hstep)
+            self.N=N[0]
+            self.xp,self.wpx=self._generate1D()
+            self.yp=self.xp
+            self.wpy=self.wpx
+            self.zp=self.xp
+            self.wpz=self.wpx
+            self.check1d=True
+        else:
+            super(Tsintegrator3D, self).__init__(N,hstep)
+            self.xp,self.wpx,self.yp,self.wpy,self.zp,self.wpz= self._generate3D()
+            self.check1d=False
+
+    def _generate1D(self):
+        """
+        Generate position and weights if Nx=Ny
+        :return:
+        """
+        return self._generateGen(self.N,self.hstep)
+
+    def _generate3D(self):
+        """
+        Generate position and weights if Nx!=Ny
+        :return:
+        """
+        x,wx=self._generateGen(self.N[0],self.hstep)
+        y,wy=self._generateGen(self.N[1],self.hstep)
+        z,wz=self._generateGen(self.N[2],self.hstep)
+
+        return x,wx,y,wy,z,wz
+
+    def integrate(self,func,xlim=(-1,1),ylim=(-1,1),zlim=(-1,1)):
+
+        x,wx=self._generateAB(self.xp,self.wpx,xlim[0],xlim[1])
+        y,wy=self._generateAB(self.yp,self.wpy,ylim[0],ylim[1])
+        z,wz=self._generateAB(self.zp,self.wpz,zlim[0],zlim[1])
+
+        if (x[-1]==xlim[-1]) or (x[0]==xlim[0]) or (y[0]==ylim[0]) or (y[-1]==ylim[-1]) or (z[0]==zlim[0])  or (z[-1]==zlim[-1]):
+            print('Warning one ox the extreme integration points is equal to the integral extrema')
+
+        xx,yy,zz=np.meshgrid(x,y,z)
+        wwx,wwy,wwz=np.meshgrid(wx,wy,wz)
+
+        res=np.sum(wwx*wwy**wwz*func(xx,yy,zz))
+
+        return res
 
