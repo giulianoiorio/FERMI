@@ -14,7 +14,7 @@ except:
 
 setup(
             name='fermi',
-            version='0.4',
+            version='0.5',
             url='https://github.com/iogiul/FERMI',
             author='Giuliano Iorio',
             author_email='giuliano.iorio@unibo.it',
