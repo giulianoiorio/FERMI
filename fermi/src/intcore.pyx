@@ -277,7 +277,8 @@ class Tsintegrator3D(Tsintegrator):
         xx,yy,zz=np.meshgrid(x,y,z)
         wwx,wwy,wwz=np.meshgrid(wx,wy,wz)
 
-        res=np.sum(wwx*wwy**wwz*func(xx,yy,zz))
+
+        res=np.sum(wwx*wwy*wwz*func(xx,yy,zz))
 
         return res
 
