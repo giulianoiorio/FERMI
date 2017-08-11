@@ -99,14 +99,14 @@ class Tsintegrator1D(Tsintegrator):
         """
         return self._generateGen(self.N,self.hstep)
 
-    def integrate(self,func,a=-1,b=1,extra_args=()):
+    def integrate(self,func,a=-1,b=1):
 
         x,w=self._generateAB(self.xp,self.wp,a,b)
 
         if (x[-1]==b) or (x[0]==a):
             print('Warning one ox the extreme integration points is equal to the integral extrema')
 
-        res=np.sum(w*func(x,*extra_args))
+        res=np.sum(w*func(x))
 
         return res
 
@@ -157,7 +157,7 @@ class Tsintegrator2D(Tsintegrator):
 
         return x,wx,y,wy
 
-    def integrate(self,func,xlim=(-1,1),ylim=(-1,1),extra_args=()):
+    def integrate(self,func,xlim=(-1,1),ylim=(-1,1)):
 
         x,wx=self._generateAB(self.xp,self.wpx,xlim[0],xlim[1])
         y,wy=self._generateAB(self.yp,self.wpy,ylim[0],ylim[1])
@@ -168,7 +168,7 @@ class Tsintegrator2D(Tsintegrator):
         xx,yy=np.meshgrid(x,y)
         wwx,wwy=np.meshgrid(wx,wy)
 
-        res=np.sum(wwx*wwy*func(xx,yy,*extra_args))
+        res=np.sum(wwx*wwy*func(xx,yy))
 
         return res
 
@@ -224,7 +224,7 @@ class Tsintegrator3D(Tsintegrator):
 
         return x,wx,y,wy,z,wz
 
-    def integrate(self,func,xlim=(-1,1),ylim=(-1,1),zlim=(-1,1),extra_args=()):
+    def integrate(self,func,xlim=(-1,1),ylim=(-1,1),zlim=(-1,1)):
 
         x,wx=self._generateAB(self.xp,self.wpx,xlim[0],xlim[1])
         y,wy=self._generateAB(self.yp,self.wpy,ylim[0],ylim[1])
@@ -236,7 +236,7 @@ class Tsintegrator3D(Tsintegrator):
         xx,yy,zz=np.meshgrid(x,y,z)
         wwx,wwy,wwz=np.meshgrid(wx,wy,wz)
 
-        res=np.sum(wwx*wwy**wwz*func(xx,yy,zz,*extra_args))
+        res=np.sum(wwx*wwy**wwz*func(xx,yy,zz))
 
         return res
 

@@ -7,25 +7,10 @@ import numpy as np
 cdef extern from "math.h" nogil:
     double exp "exp" (double)
 
-@boundscheck(False)
-@wraparound(False)
-cdef double _cintegrate(double[::1] w, double[::1] fx, int nlen) nogil:
-
-    cdef:
-        double sum=0.
-        int i
-
-    for i in prange(nlen,nogil=True,schedule='static'):
-        sum+=w[i]*fx[i]
-
-    return sum
-
-cdef double f(double x) nogil:
-    return x*exp(-x/5.)
 
 @boundscheck(False)
 @wraparound(False)
-cdef double _cintegrate2(double (*f)(double x) nogil,double[::1] w, double[::1] x, int nlen) nogil:
+cdef double _cintegrate(double (*f)(double x) nogil,double[::1] w, double[::1] x, int nlen) nogil:
 
     cdef:
         double sum=0.
@@ -36,6 +21,43 @@ cdef double _cintegrate2(double (*f)(double x) nogil,double[::1] w, double[::1] 
 
     return sum
 
+@boundscheck(False)
+@wraparound(False)
+cdef double _cintegrate1e(double (*f)(double x, double e1) nogil, double e1, double[::1] w, double[::1] x, int nlen) nogil:
+
+    cdef:
+        double sum=0.
+        int i
+
+    for i in prange(nlen,nogil=True,schedule='static'):
+        sum+=w[i]*f(x[i], e1)
+
+    return sum
+
+@boundscheck(False)
+@wraparound(False)
+cdef double _cintegrate2e(double (*f)(double x, double e1, double e2) nogil, double e1, double e2,  double[::1] w, double[::1] x, int nlen) nogil:
+
+    cdef:
+        double sum=0.
+        int i
+
+    for i in prange(nlen,nogil=True,schedule='static'):
+        sum+=w[i]*f(x[i], e1, e2)
+
+    return sum
+
+@boundscheck(False)
+@wraparound(False)
+cpdef  double _noarr_integrate(func, double[::1] w, double[::1] x, int nlen,extra_args=()):
+        cdef:
+            int i, nl=len(w)
+            double res=0.
+
+        for i in range(nl):
+            res+=w[i]*func(x[i],*extra_args)
+
+        return res
 
 class Tsintegrator(object):
     """
@@ -133,21 +155,21 @@ class Tsintegrator1D(Tsintegrator):
         """
         return self._generateGen(self.N,self.hstep)
 
-    def integrate(self,func,a=-1,b=1,extra_args=(),use_c=False):
+    def integrate(self,func,a=-1,b=1,extra_args=(),use_c=False, use_array=True):
 
         x,w=self._generateAB(self.xp,self.wp,a,b)
 
         if use_c:
             #fx=func(x,*extra_args)
             nl=len(w)
-            #res=_cintegrate(w,fx,nl)
-            res=_cintegrate2(f,w,x,nl)
-
-
+            #res=_cintegre(w,fx,nl)
+            #res=_cintegrate(func,w,x,nl)
+        elif use_array:
+            res=np.sum(w*func(x,*extra_args))
         #if (x[-1]==b) or (x[0]==a):
             #print('Warning one ox the extreme integration points is equal to the integral extrema')
         else:
-            res=np.sum(w*func(x,*extra_args))
+            res=_noarr_integrate(func,w,x,len(w),extra_args=extra_args)
 
         return res
 

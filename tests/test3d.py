@@ -3,10 +3,10 @@ from scipy.integrate import nquad
 import numpy as np
 import time
 
-def f(x,y,z): return (x+y+z)*np.exp(-x/5)/y**2
-xlim=(0,3)
-ylim=(1,2)
-zlim=(5,6)
+def f(x,y,z): return (x+y+z)*np.exp(-x/5)/(1+y**2)
+xlim=(0,10)
+ylim=(-4,2)
+zlim=(-1,0)
 
 i=Tsintegrator3D()
 
