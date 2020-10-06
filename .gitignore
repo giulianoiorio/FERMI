@@ -1,6 +1,13 @@
 /build
 .build/
 build/
+/idea
+.idea/
+idea/
+
 
 *.so
 *.c
+
+*.DS_Store 
+
