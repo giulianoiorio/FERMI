@@ -1,3 +1,0 @@
-fermi
-fermi/src
-fermi/src/intcore

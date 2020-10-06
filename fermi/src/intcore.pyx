@@ -303,4 +303,3 @@ class Tsintegrator3D(Tsintegrator):
         res=np.sum(wwx*wwy*wwz*func(xx,yy,zz))
 
         return res
-
